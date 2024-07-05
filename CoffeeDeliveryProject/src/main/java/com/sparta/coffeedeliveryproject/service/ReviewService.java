@@ -10,6 +10,10 @@ import com.sparta.coffeedeliveryproject.repository.CafeRepository;
 import com.sparta.coffeedeliveryproject.repository.OrderRepository;
 import com.sparta.coffeedeliveryproject.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -86,4 +90,16 @@ public class ReviewService {
 
     }
 
+    public Page<ReviewResponseDto> getUserLikeReview(int page, User user) {
+
+        Pageable pageable = PageRequest.of(page, 5, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<ReviewResponseDto> reviewPage = reviewRepository.findLikeReviewByUserUserId(user.getUserId(), pageable).map(ReviewResponseDto::new);
+
+        if (reviewPage.isEmpty()) {
+            throw new IllegalArgumentException("리뷰가 존재하지 않습니다.");
+        }
+
+        return reviewPage;
+
+    }
 }

@@ -6,10 +6,14 @@ import com.sparta.coffeedeliveryproject.security.UserDetailsImpl;
 import com.sparta.coffeedeliveryproject.service.ReviewService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.awt.print.Pageable;
 import java.util.List;
 
 @RestController
@@ -46,6 +50,16 @@ public class ReviewController {
     public ResponseEntity<String> deleteReview(@PathVariable Long reviewId, @AuthenticationPrincipal UserDetailsImpl userDetails){
 
         return reviewService.deleteReview(reviewId, userDetails.getUser());
+    }
+
+    @GetMapping("/reviews/like")
+    public ResponseEntity<Page<ReviewResponseDto>> getUserLikeReview(
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @AuthenticationPrincipal UserDetailsImpl userDetails) {
+
+        Page<ReviewResponseDto> responseDtoList = reviewService.getUserLikeReview(page - 1, userDetails.getUser());
+
+        return ResponseEntity.status(HttpStatus.OK).body(responseDtoList);
     }
 
 }
