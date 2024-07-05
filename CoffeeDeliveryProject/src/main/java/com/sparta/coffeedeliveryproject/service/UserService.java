@@ -1,12 +1,16 @@
 package com.sparta.coffeedeliveryproject.service;
 
 import com.sparta.coffeedeliveryproject.dto.*;
+import com.sparta.coffeedeliveryproject.entity.Cafe;
+import com.sparta.coffeedeliveryproject.entity.Review;
 import com.sparta.coffeedeliveryproject.entity.User;
 import com.sparta.coffeedeliveryproject.entity.UserRole;
 import com.sparta.coffeedeliveryproject.enums.UserStatusEnum;
 import com.sparta.coffeedeliveryproject.exceptions.PasswordMismatchException;
 import com.sparta.coffeedeliveryproject.exceptions.RecentlyUsedPasswordException;
 import com.sparta.coffeedeliveryproject.jwt.JwtUtil;
+import com.sparta.coffeedeliveryproject.repository.CafeRepository;
+import com.sparta.coffeedeliveryproject.repository.ReviewRepository;
 import com.sparta.coffeedeliveryproject.repository.UserRepository;
 import com.sparta.coffeedeliveryproject.repository.UserRoleRepository;
 import io.jsonwebtoken.Claims;
@@ -14,6 +18,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -27,6 +35,8 @@ import java.util.Set;
 public class UserService {
 
     private final UserRoleRepository userRoleRepository;
+    private final CafeRepository cafeRepository;
+    private final ReviewRepository reviewRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
@@ -192,6 +202,20 @@ public class UserService {
         SecurityContextHolder.clearContext();
 
         return new MessageResponseDto("로그아웃이 완료되었습니다.");
+    }
+
+    public Page<CafeResponseDto> getUserLikeCafe(int page, User user) {
+        Pageable pageable = PageRequest.of(page, 5, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<Cafe> likedCafes = cafeRepository.findLikeCafeByUserUserId(user.getUserId(), pageable);
+
+        return likedCafes.map(CafeResponseDto::new);
+    }
+
+    public Page<ReviewResponseDto> getUserLikeReview(int page, User user) {
+        Pageable pageable = PageRequest.of(page, 5, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<Review> likedReviews = reviewRepository.findLikeReviewByUserUserId(user.getUserId(), pageable);
+
+        return likedReviews.map(ReviewResponseDto::new);
     }
 
     private User findUserById(Long userId) {

@@ -2,11 +2,13 @@ package com.sparta.coffeedeliveryproject.controller;
 
 import com.sparta.coffeedeliveryproject.dto.*;
 import com.sparta.coffeedeliveryproject.security.UserDetailsImpl;
+import com.sparta.coffeedeliveryproject.service.CafeService;
 import com.sparta.coffeedeliveryproject.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserService userService;
+    private final CafeService cafeService;
 
     @PostMapping("/signup")
     public ResponseEntity<MessageResponseDto> signup(@RequestBody @Valid SignupRequestDto signupRequestDto) {
@@ -49,6 +52,26 @@ public class UserController {
         MessageResponseDto responseDto = userService.reissueToken(request, response);
 
         return ResponseEntity.status(HttpStatus.OK).body(responseDto);
+    }
+
+    @GetMapping("/cafes/like")
+    public ResponseEntity<Page<CafeResponseDto>> getUserLikeCafes(
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @AuthenticationPrincipal UserDetailsImpl userDetails) {
+
+        Page<CafeResponseDto> responseDtoList = userService.getUserLikeCafe(page - 1, userDetails.getUser());
+
+        return ResponseEntity.status(HttpStatus.OK).body(responseDtoList);
+    }
+
+    @GetMapping("/reviews/like")
+    public ResponseEntity<Page<ReviewResponseDto>> getUserLikeReview(
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @AuthenticationPrincipal UserDetailsImpl userDetails) {
+
+        Page<ReviewResponseDto> responseDtoList = userService.getUserLikeReview(page - 1, userDetails.getUser());
+
+        return ResponseEntity.status(HttpStatus.OK).body(responseDtoList);
     }
 
 }
