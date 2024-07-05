@@ -90,16 +90,4 @@ public class ReviewService {
 
     }
 
-    public Page<ReviewResponseDto> getUserLikeReview(int page, User user) {
-
-        Pageable pageable = PageRequest.of(page, 5, Sort.by(Sort.Direction.DESC, "createdAt"));
-        Page<ReviewResponseDto> reviewPage = reviewRepository.findLikeReviewByUserUserId(user.getUserId(), pageable).map(ReviewResponseDto::new);
-
-        if (reviewPage.isEmpty()) {
-            throw new IllegalArgumentException("리뷰가 존재하지 않습니다.");
-        }
-
-        return reviewPage;
-
-    }
 }

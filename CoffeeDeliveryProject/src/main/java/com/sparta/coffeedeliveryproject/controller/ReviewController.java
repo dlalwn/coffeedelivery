@@ -52,14 +52,4 @@ public class ReviewController {
         return reviewService.deleteReview(reviewId, userDetails.getUser());
     }
 
-    @GetMapping("/reviews/like")
-    public ResponseEntity<Page<ReviewResponseDto>> getUserLikeReview(
-            @RequestParam(value = "page", defaultValue = "1") int page,
-            @AuthenticationPrincipal UserDetailsImpl userDetails) {
-
-        Page<ReviewResponseDto> responseDtoList = reviewService.getUserLikeReview(page - 1, userDetails.getUser());
-
-        return ResponseEntity.status(HttpStatus.OK).body(responseDtoList);
-    }
-
 }
